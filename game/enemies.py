@@ -87,6 +87,7 @@ class Enemy(pygame.sprite.Sprite):
             # Удаление врага из группы спрайтов
             self.kill()
 
+clock = pygame.time.Clock()
 
 # Инициализация pygame
 pygame.init()
@@ -102,7 +103,7 @@ pygame.time.set_timer(ADDENEMY, 250)
 # Создание экземпляра игрока. В настоящее время это просто прямоугольник.
 player = Player()
 
-# Создание групп для хранения картинок врагов и всех спрайтов
+# Создание групп для хранения спрайтов врагов и всех спрайтов
 # - группа 'enemies' используется для обнаружения столкновений и обновления положения врагов
 # - группа 'all_sprites' используется для отрисовки всех спрайтов
 enemies = pygame.sprite.Group()
@@ -123,6 +124,7 @@ while running:
                 running = False
         if event.type == QUIT:
             running = False
+        # новый враг?
         if event.type == ADDENEMY:
             # Create the new enemy and add it to sprite groups
             new_enemy = Enemy()
@@ -141,6 +143,14 @@ while running:
     # Заполнение экрана черным цветом
     screen.fill((0, 0, 0))
 
+    # Нарисовать все спрайты
+    for entity in all_sprites:
+        screen.blit(entity.surf, entity.rect)
+
+    # если враг столкнулся с игроком
+    if pygame.sprite.spritecollideany(player, enemies):
+        player.kill()
+        running = False
 
     font = pygame.font.Font(None, 36)
     score_text = font.render(f"Счет: {player.score}", True, (255, 255, 255))
@@ -154,4 +164,5 @@ while running:
     # Обновление отображения
     pygame.display.flip()
 
+    clock.tick(200)
 
