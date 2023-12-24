@@ -13,20 +13,23 @@ from pygame.locals import (
     K_SPACE,
     KEYDOWN,
     QUIT,
+    RLEACCEL,
 )
 
 # Определение констант для ширины и высоты экрана
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
+# загружаем задний фон
+background = pygame.image.load("game/background.jpg")
+
 # Создание объекта игрока
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        # создаем Surface - картинку игрока с размером (75 на 25)
-        self.surf = pygame.Surface((75, 25))
-        # заполняем картинку игрока белым цветом
-        self.surf.fill((255, 255, 255))
+        # загружаем картинку
+        self.surf = pygame.image.load("game/heart.png").convert_alpha()
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.surf.get_rect()
         self.score = 0
 
@@ -41,9 +44,6 @@ class Player(pygame.sprite.Sprite):
         if pressed_keys[K_RIGHT]:
             self.rect.move_ip(5, 0)
 
-        if pressed_keys[K_SPACE]:
-            self.score += 1
-
         # Keep player on the screen
         if self.rect.left < 0:
             self.rect.left = 0
@@ -57,18 +57,18 @@ class Player(pygame.sprite.Sprite):
 # Поверхность, на которой рисуется изображение, теперь является атрибутом 'enemy'
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
-        # Вызов конструктора родительского класса
         super(Enemy, self).__init__()
 
-        # Создание поверхности для врага размером 20x10 и закрашивание ее белым цветом
-        self.surf = pygame.Surface((20, 10))
-        self.surf.fill((255, 255, 255))
+        # загружаем картинку
+        self.surf = pygame.image.load("image.png").convert_alpha()
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
+
 
         # Получение прямоугольника, описывающего положение поверхности
         # Начальное положение врага устанавливается случайным образом
         self.rect = self.surf.get_rect(
             center=(
-                random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
+                random.randint(SCREEN_WIDTH - 50, SCREEN_WIDTH),
                 random.randint(0, SCREEN_HEIGHT),
             )
         )
@@ -98,7 +98,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # создаем эвент создания врага
 ADDENEMY = pygame.USEREVENT + 1
-pygame.time.set_timer(ADDENEMY, 250)
+pygame.time.set_timer(ADDENEMY, 500)
 
 # Создание экземпляра игрока. В настоящее время это просто прямоугольник.
 player = Player()
@@ -116,18 +116,22 @@ all_sprites.add(player)
 # Переменная для продолжения работы основного цикла
 running = True
 
+font = pygame.font.Font(None, 36)
+
 # Основной цикл
-while running:
+while running == True:
     for event in pygame.event.get():
+        # keydown - нажатие клавиши
         if event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 running = False
+        # quit - закрыть на крестик
         if event.type == QUIT:
             running = False
         # новый враг?
         if event.type == ADDENEMY:
             # Create the new enemy and add it to sprite groups
-            new_enemy = Enemy()
+            new_enemy = Enemy("game/sword.png", 3, 7)
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)
 
@@ -141,18 +145,14 @@ while running:
     enemies.update()
 
     # Заполнение экрана черным цветом
-    screen.fill((0, 0, 0))
-
+    screen.blit(background, (0, 0))
     # Нарисовать все спрайты
     for entity in all_sprites:
         screen.blit(entity.surf, entity.rect)
 
-    # если враг столкнулся с игроком
-    if pygame.sprite.spritecollideany(player, enemies):
-        player.kill()
-        running = False
+    if pygame.sprite.spritecollide(player, enemies, True):
+        player.health -= 1 
 
-    font = pygame.font.Font(None, 36)
     score_text = font.render(f"Счет: {player.score}", True, (255, 255, 255))
     screen.blit(score_text, (10, 10))
 
@@ -164,5 +164,5 @@ while running:
     # Обновление отображения
     pygame.display.flip()
 
-    clock.tick(200)
+    clock.tick(30)
 
