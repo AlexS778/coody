@@ -60,7 +60,7 @@ class Enemy(pygame.sprite.Sprite):
         super(Enemy, self).__init__()
 
         # загружаем картинку
-        self.surf = pygame.image.load("image.png").convert_alpha()
+        self.surf = pygame.image.load("/Users/alexeyserbinov/Documents/coody/game/sword.png").convert_alpha()
         self.surf.set_colorkey((255, 255, 255), RLEACCEL)
 
 
@@ -131,7 +131,7 @@ while running == True:
         # новый враг?
         if event.type == ADDENEMY:
             # Create the new enemy and add it to sprite groups
-            new_enemy = Enemy("game/sword.png", 3, 7)
+            new_enemy = Enemy()
             enemies.add(new_enemy)
             all_sprites.add(new_enemy)
 
@@ -151,7 +151,8 @@ while running == True:
         screen.blit(entity.surf, entity.rect)
 
     if pygame.sprite.spritecollide(player, enemies, True):
-        player.health -= 1 
+        player.kill()
+        break
 
     score_text = font.render(f"Счет: {player.score}", True, (255, 255, 255))
     screen.blit(score_text, (10, 10))
