@@ -5,6 +5,7 @@ import random
 # Инициализация Pygame
 pygame.init()
 
+# Определение размеров игрового окна
 ШИРИНА, ВЫСОТА = 1000, 1000
 окно = pygame.display.set_mode((ШИРИНА, ВЫСОТА))
 pygame.display.set_caption("Змейка")
@@ -33,6 +34,7 @@ while True:
             pygame.quit()
             sys.exit()
         elif событие.type == pygame.KEYDOWN:
+            # Обработка событий клавиш для изменения направления змеи
             if событие.key == pygame.K_UP and направление_змеи != (0, размер_змеи):
                 направление_змеи = (0, -размер_змеи)
             elif событие.key == pygame.K_DOWN and направление_змеи != (0, -размер_змеи):
