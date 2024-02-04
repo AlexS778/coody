@@ -17,21 +17,26 @@ from pygame.locals import (
     K_s,
     K_p,
     QUIT,
+    RLEACCEL
 )
 
 # Определение констант для ширины и высоты экрана
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1000
+SCREEN_HEIGHT = 800
+
+
+background = pygame.image.load("./background.jpg")
 
 # Создание объекта игрока
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super(Player, self).__init__()
-        # создаем Surface - картинку игрока с размером (75 на 25)
-        self.surf = pygame.Surface((75, 25))
-        # заполняем картинку игрока белым цветом
-        self.surf.fill((255, 255, 255))
+        player_image = pygame.image.load("./cat.png").convert_alpha()
+        self.surf = pygame.transform.scale(player_image, (230, 89))
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.surf.get_rect()
+        self.rect.x = 0
+        self.rect.y = SCREEN_HEIGHT // 2
         self.score = 0
 
     # Перемещение объекта игрока на экране
@@ -60,21 +65,18 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         super(Enemy, self).__init__()
 
-        # Создание поверхности для врага размером 20x10 и закрашивание ее белым цветом
-        self.surf = pygame.Surface((20, 10))
-        self.surf.fill((255, 17, 0))
-
-        # Получение прямоугольника, описывающего положение поверхности
-        # Начальное положение врага устанавливается случайным образом
+        enemy_image = pygame.image.load("./luzha.png").convert_alpha()
+        height = random.randint(70, 160)
+        self.surf = pygame.transform.scale(enemy_image, (height, height))
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
+        # The starting position is randomly generated, as is the speed
         self.rect = self.surf.get_rect(
             center=(
                 random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
                 random.randint(0, SCREEN_HEIGHT),
             )
         )
-
-        # Установка случайной скорости врага в пределах от 5 до 20
-        self.speed = random.randint(5, 20)
+        self.speed = 10
 
     # Обновление положения спрайта на основе скорости
     # Удаление спрайта, когда он проходит левый край экрана
@@ -94,7 +96,9 @@ pygame.init()
 
 # Создание объекта экрана
 # Размер определяется переменными SCREEN_WIDTH и SCREEN_HEIGHT
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
+screen = pygame.display.set_mode(
+    (SCREEN_WIDTH, SCREEN_HEIGHT),
+    pygame.RESIZABLE)
 
 # создаем эвент создания врага
 ADDENEMY = pygame.USEREVENT + 1
@@ -118,7 +122,6 @@ running = True
 
 # runing = 1, pause = 0 
 status = 0
-a= 0
 # Основной цикл
 while running == True:
     for event in pygame.event.get():
@@ -148,18 +151,14 @@ while running == True:
 
         font = pygame.font.Font(None, 40)
         score_text = font.render(f"Продолжить \"S\"", True, (255, 255, 255))
-        screen.blit(score_text, (10, 10))
-
+        screen.blit(score_text, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+        pygame.time.set_timer(ADDENEMY, 1700)
                 # Обновление отображения
         pygame.display.flip()
 
 
     else:
-        pygame.time.set_timer(ADDENEMY, 250)
     
-        a+=1
-        print("создали евент врага", a)
-
         # получаем последнюю нажатую клавишу
         pressed_keys = pygame.key.get_pressed()
 
@@ -170,7 +169,7 @@ while running == True:
         enemies.update()
 
         # Заполнение экрана черным цветом
-        screen.fill((0, 0, 0))
+        screen.blit(background, (0,0))
 
         # Нарисовать все спрайты
         for entity in all_sprites:
