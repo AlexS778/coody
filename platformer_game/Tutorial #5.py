@@ -2,7 +2,7 @@ import pygame
 
 pygame.init()
 
-win = pygame.display.set_mode((1000, 480))
+win = pygame.display.set_mode((500, 480))
 
 pygame.display.set_caption("First Game")
 
@@ -47,6 +47,7 @@ class player(object):
         self.walkCount = 0
         self.jumpCount = 10
         self.standing = True
+        self.coins = 0  # монеты
 
     def draw(self, win):
         if self.walkCount + 1 >= 27:
@@ -66,6 +67,7 @@ class player(object):
                 win.blit(walkLeft[0], (self.x, self.y))
 
 
+# projectile - снаряд``
 class projectile(object):
     def __init__(self, x, y, radius, color, facing):
         self.x = x
@@ -73,12 +75,15 @@ class projectile(object):
         self.radius = radius
         self.color = color
         self.facing = facing
-        self.vel = 8 * facing
+        self.vel = 1 * facing
 
+    # draw -  рисует наши снаряды
     def draw(self, win):
+        # pygame.draw.circle - функция библотеки pygame которая рисует круг`
         pygame.draw.circle(win, self.color, (self.x, self.y), self.radius)
 
 
+# redrawGameWindow - об
 def redrawGameWindow():
     win.blit(bg, (0, 0))
     man.draw(win)
@@ -93,7 +98,8 @@ man = player(200, 410, 64, 64)
 bullets = []
 run = True
 while run:
-    clock.tick(27)
+    # fps
+    clock.tick(3000)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -113,13 +119,13 @@ while run:
         else:
             facing = 1
 
-        if len(bullets) < 5:
+        if len(bullets) < 100:
             bullets.append(
                 projectile(
                     round(man.x + man.width // 2),
                     round(man.y + man.height // 2),
                     6,
-                    (0, 0, 0),
+                    (255, 0, 0),
                     facing,
                 )
             )
